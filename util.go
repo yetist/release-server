@@ -111,6 +111,25 @@ func WriteFile(path string, data []byte) error {
 	return ioutil.WriteFile(path, data, 0644)
 }
 
+func CopyFile(srcName, dstName string) (written int64, err error) {
+	dirname := path.Dir(dstName)
+	os.MkdirAll(dirname, 0755)
+
+	src, err := os.Open(srcName)
+	if err != nil {
+		return
+	}
+	defer src.Close()
+
+	dst, err := os.Create(dstName)
+	if err != nil {
+		return
+	}
+	defer dst.Close()
+
+	return io.Copy(dst, src)
+}
+
 func get_file_size(path string) (size int64) {
 	file, err := os.Open(path)
 	if err != nil {

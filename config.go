@@ -13,12 +13,14 @@ import (
 
 type Config struct {
 	Web struct {
+		Host string `toml:"host"`
 		Port int
 	}
 	Path struct {
 		Release    string `toml:"release"`
 		PreRelease string `toml:"pre-release"`
 		Draft      string `toml:"draft"`
+		Source     string `toml:"source"`
 	}
 	Secret struct {
 		ApiSecret  string   `toml:"api_secret"`
@@ -39,7 +41,8 @@ type Config struct {
 var defConfig = `
 #
 [web]
-#http server port
+#http server host and port
+host = "localhost"
 port = 9090
 
 [path]
@@ -52,8 +55,10 @@ pre-release = "/tmp/prerelease"
 # path to save draft version tarballs.
 draft = "/tmp/draft"
 
-[secret]
+# path to save the release version tarballs as source.
+source = "/tmp/sources"
 
+[secret]
 # secret key
 api_secret = "it is a secret string"
 

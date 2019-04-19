@@ -30,27 +30,36 @@ type Release struct {
 	Files       []File    `json:"files"`
 }
 
-func ReleaseVersion(release Release) {
+func DownloadTarballs(release Release) {
 	var pathPrefix string
-	var overwrite bool
+	var overwrite, updateSource bool
+	var sourceDir string
 
 	version_list := strings.Split(release.Version, ".")
 	api_version := strings.Join(version_list[:2], ".")
 	if release.Draft {
-		pathPrefix = path.Join(config.Path.Release, api_version)
+		pathPrefix = path.Join(config.Path.Draft, api_version)
 		overwrite = true
 	} else if release.PreRelease {
-		pathPrefix = path.Join(config.Path.Release, api_version)
+		pathPrefix = path.Join(config.Path.PreRelease, api_version)
 		overwrite = true
 	} else {
 		pathPrefix = path.Join(config.Path.Release, api_version)
 		overwrite = false
+		if config.Path.Source != "" {
+			updateSource = true
+			sourceDir = path.Join(config.Path.Source, release.Name, api_version)
+		}
 	}
 
 	for _, file := range release.Files {
 		filepath := path.Join(pathPrefix, file.Name)
 		if err := DownloadFile(file.Url, filepath, overwrite, file.Size); err != nil {
 			fmt.Printf("Download \"%s\" Error: %s\n", file.Url, err)
+		}
+		if updateSource {
+			dstpath := path.Join(sourceDir, file.Name)
+			CopyFile(filepath, dstpath)
 		}
 	}
 
@@ -62,6 +71,10 @@ func ReleaseVersion(release Release) {
 		ioutil.WriteFile(newspath, []byte(news), 0644)
 	} else {
 		ioutil.WriteFile(newspath, []byte(release.News+"\n"), 0644)
+	}
+	if updateSource {
+		dstpath := path.Join(sourceDir, newsfile)
+		CopyFile(newspath, dstpath)
 	}
 	return
 }
@@ -93,7 +106,7 @@ func checkValid(header http.Header, body []byte) bool {
 	}
 }
 
-func Update(c *gin.Context) {
+func PostRelease(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		fmt.Printf("Error reading body: %v", err)
@@ -128,14 +141,18 @@ func Update(c *gin.Context) {
 		}
 	}
 
-	ReleaseVersion(release)
+	DownloadTarballs(release)
 	c.JSON(http.StatusOK, gin.H{"status": "release success"})
 }
 
 func main() {
+	//gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
-	router.POST("/post", Update)
-	gin.SetMode(gin.ReleaseMode)
+	router.POST("/release", PostRelease)
+	router.StaticFS("/draft/", http.Dir(config.Path.Draft))
+	router.StaticFS("/prerelease/", http.Dir(config.Path.PreRelease))
+	router.StaticFS("/release/", http.Dir(config.Path.Release))
+	router.StaticFS("/sources/", http.Dir(config.Path.Source))
 
 	http.ListenAndServe(":"+strconv.Itoa(config.Web.Port), router)
 }

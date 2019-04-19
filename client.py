@@ -43,38 +43,29 @@ def send_post_to_url(url, payload, headers={}):
 
 def notify(url):
     data = {
-            "name": "docker-build",
-            "version": "1.3.3",
-            "tag": "1.3.3",
-            "repo": "yetist/docker-build",
+            "name": "mate-common",
+            "version": "1.13.0",
+            "tag": "v1.13.0",
+            "repo": "yetist/mate-common",
             "draft": False,
-            "news": "Changes since the last release: https://github.com/yetist/docker-build/compare/v1.2.20...1.3.0\n- The commit title\n\nThe commit body\nline 2\nline 3\nline 4\n- Adfs23432f Title\n\nContent 1\nline 2\nline 3\n&asdf #sfdsfs\n$1\nthe end line",
+            "news": "Changes since the last release: https://github.com/yetist/mate-common/compare/v1.12.0...v1.13.0\n- fix tiny typo\n- remove references to obsolete MATE components\n- pre-bump version to 1.13.0\n- release 1.13.0\n- correct NEWS a bit\n- release 1.14 release\n- release 1.15.0\n- mate-autogen: Check only for autoreconf\n\nautoconf, automake, libtool, gettext are already checked by autoreconf. Closes #19.\n\nAdapted from https://git.gnome.org/browse/gnome-common/commit/macros2/gnome-autogen.sh?id=17f56a49964a3ddabf0d166326989033b7d84764\n- Bump version to 1.15.1\n- release 1.16.0\n- update NEWS for 1.16\n- release 1.17.0\n- Update mate-common NEWS to use consistent, project wide, markdown-like formatting. This will make generating release announcements easier.\n- update NEWS for 1.18\n- release 1.18\n- pre-bump version\n- create issue_template.md\n- update issue_template\n- release 1.19.0\n- release 1.20\n- release 1.21.0\n- initial travis ci\n- release 1.22.0\n- travis: fix distcheck for fedora\n- auto release when push tag to github",
             "prerelease": False,
             'created_at' : datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
             'published_at' : datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
             "files": [
                 {
-                    "name": "distro_hook",
-                    "size": 1330,
-                    "url": "https://github.com/yetist/docker-build/releases/download/v1.3.3/distro_hook"
-                },
+                    "name": "mate-common-1.20.0.tar.xz",
+                    "size": 73140,
+                    "url": "https://github.com/yetist/mate-common/releases/download/v1.13.0/mate-common-1.20.0.tar.xz"
+                    },
                 {
-                    "name": "distro_hook.sha256sum",
-                    "size": 78,
-                    "url": "https://github.com/yetist/docker-build/releases/download/v1.3.3/distro_hook.sha256sum"
-                },
-                {
-                    "name": "NEWS",
-                    "size": 6396,
-                    "url": "https://github.com/yetist/docker-build/releases/download/v1.3.3/NEWS"
-                },
-                {
-                    "name": "NEWS.sha256sum",
-                    "size": 71,
-                    "url": "https://github.com/yetist/docker-build/releases/download/v1.3.3/NEWS.sha256sum"
-                }
-            ]
-        }
+                    "name": "mate-common-1.20.0.tar.xz.sha256sum",
+                    "size": 92,
+                    "url": "https://github.com/yetist/mate-common/releases/download/v1.13.0/mate-common-1.20.0.tar.xz.sha256sum"
+                    }
+                ]
+            }
+
     payload = json.dumps(data, indent=2, default=str)
     result = send_post_to_url(url, payload)
     if result > 0:
@@ -84,7 +75,7 @@ def notify(url):
         print('Notification has send')
 
 if __name__=="__main__":
-    url='http://localhost:8080/post'
+    url='http://localhost:9090/release'
     notify(url)
     #payload=data
     #send_post_to_url(url, payload)
