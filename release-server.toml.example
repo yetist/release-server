@@ -1,0 +1,44 @@
+#                                                                                                                                                                                      [23/1978]
+[web]
+#http server port
+host = "localhost"
+port = 9090
+
+[path]
+# path to save release version tarballs.
+release = "/tmp/release"
+
+# path to save pre-release version tarballs.
+pre-release = "/tmp/prerelease"
+
+# path to save draft version tarballs.
+draft = "/tmp/draft"
+
+# path to save source tarballs
+source = "/tmp/sources"
+
+[secret]
+# secret key
+api_secret = "it's a secret string"
+
+# allow repos
+allow_repos = [
+"mate-desktop/marco",
+"*",
+]
+
+# allow ips
+allow_ips = [
+"127.0.0.1",
+"::1",
+]
+
+# mail server
+[mail]
+smtp_host = ""
+smtp_port = 587
+username = ""
+password = ""
+sender_nick = "Notify"
+sender = "nobody@example.com"
+receivers = ["abc@example.com"]
