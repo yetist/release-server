@@ -34,6 +34,7 @@ env:
 requires:
   archlinux:
     - go
+    - git
 
 build_scripts:
   - go build
