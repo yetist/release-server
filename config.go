@@ -22,7 +22,7 @@ type Config struct {
 		Draft      string `toml:"draft"`
 		Source     string `toml:"source"`
 	}
-	Secret struct {
+	Security struct {
 		ApiSecret  string   `toml:"api_secret"`
 		AllowRepos []string `toml:"allow_repos"`
 		AllowIps   []string `toml:"allow_ips"`
@@ -58,7 +58,7 @@ draft = "/tmp/draft"
 # path to save the release version tarballs as source.
 source = "/tmp/sources"
 
-[secret]
+[security]
 # secret key
 api_secret = "it is a secret string"
 
@@ -89,8 +89,8 @@ var config Config
 
 func init() {
 	LoadConfig("release-server", "0.1.1", "release-server.toml")
-	if config.Secret.ApiSecret == "" {
-		config.Secret.ApiSecret = os.Getenv("API_SECRET")
+	if config.Security.ApiSecret == "" {
+		config.Security.ApiSecret = os.Getenv("API_SECRET")
 	}
 }
 

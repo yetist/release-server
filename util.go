@@ -24,7 +24,7 @@ func calcHmac(secret, data string) (result string) {
 
 func AllowRepo(url string) bool {
 	allow := false
-	for _, v := range config.Secret.AllowRepos {
+	for _, v := range config.Security.AllowRepos {
 		prefix := "https: //github.com/" + v + "/releases/download"
 		if v == "*" || strings.HasPrefix(url, prefix) {
 			allow = true

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"io/ioutil"
 	"net/http"
 	"path"
@@ -28,6 +30,11 @@ type Release struct {
 	CreatedAt   time.Time `json:"created_at"`
 	PublishedAt time.Time `json:"published_at"`
 	Files       []File    `json:"files"`
+}
+
+type Security struct {
+	gorm.Model
+	Nonce string `gorm:"type:varchar(100);unique"`
 }
 
 func DownloadTarballs(release Release) {
@@ -80,8 +87,22 @@ func DownloadTarballs(release Release) {
 }
 
 func NonceIsNew(nonce string) bool {
-	//TODO
-	return true
+	db, err := gorm.Open("sqlite3", ExpandUser("~/.release.db"))
+	if err != nil {
+		return true
+	}
+	defer db.Close()
+
+	db.AutoMigrate(&Security{})
+
+	security := Security{Nonce: nonce}
+
+	if db.NewRecord(security) {
+		db.Create(&security)
+		return true
+	} else {
+		return false
+	}
 }
 
 func checkValid(header http.Header, body []byte) bool {
@@ -90,12 +111,12 @@ func checkValid(header http.Header, body []byte) bool {
 		return false
 	}
 
-	if config.Secret.ApiSecret == "" {
+	if config.Security.ApiSecret == "" {
 		return true
 	}
 
 	data := nonce + string(body)
-	result := calcHmac(config.Secret.ApiSecret, data)
+	result := calcHmac(config.Security.ApiSecret, data)
 	signature := header.Get("X-Build-Signature")
 	s1, s2 := strings.ToLower(signature), strings.ToLower(result)
 
@@ -114,8 +135,8 @@ func PostRelease(c *gin.Context) {
 		return
 	}
 
-	if len(config.Secret.AllowIps) > 0 {
-		if !isIpAllowed(c.Request, config.Secret.AllowIps) {
+	if len(config.Security.AllowIps) > 0 {
+		if !isIpAllowed(c.Request, config.Security.AllowIps) {
 			c.JSON(http.StatusForbidden, gin.H{"status": "invalid ip addr."})
 			return
 		}
@@ -134,7 +155,7 @@ func PostRelease(c *gin.Context) {
 		return
 	}
 
-	if len(config.Secret.AllowRepos) > 0 {
+	if len(config.Security.AllowRepos) > 0 {
 		if !isRepoAllowed(release) {
 			c.JSON(http.StatusForbidden, gin.H{"status": "disallow release the software"})
 			return
