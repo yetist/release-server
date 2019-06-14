@@ -13,8 +13,10 @@ import (
 
 type Config struct {
 	Web struct {
-		Host string `toml:"host"`
-		Port int
+		Debug bool   `toml:"debug"`
+		Host  string `toml:"host"`
+		Port  int
+		Log   string `toml:"log"`
 	}
 	Path struct {
 		Release    string `toml:"release"`
@@ -42,8 +44,10 @@ var defConfig = `
 #
 [web]
 #http server host and port
+debug = false
 host = "localhost"
 port = 9090
+log = "/tmp/release-server.log"
 
 [path]
 # path to save release version tarballs.

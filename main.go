@@ -7,6 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"path"
 	"strconv"
@@ -108,10 +109,12 @@ func NonceIsNew(nonce string) bool {
 func checkValid(header http.Header, body []byte) bool {
 	nonce := header.Get("X-Build-Nonce")
 	if !NonceIsNew(nonce) {
+		log.Println("ERROR: Nonce %s is old." % nonce)
 		return false
 	}
 
 	if config.Security.ApiSecret == "" {
+		log.Println("Server ignore Client's API_SECRET")
 		return true
 	}
 
@@ -123,6 +126,7 @@ func checkValid(header http.Header, body []byte) bool {
 	if s1 == s2 {
 		return true
 	} else {
+		log.Println("ERROR: Signature: Need %s, but get %s.", s2, s1)
 		return false
 	}
 }
@@ -130,19 +134,21 @@ func checkValid(header http.Header, body []byte) bool {
 func PostRelease(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		fmt.Printf("Error reading body: %v", err)
+		log.Println("ERROR: reading body: %v", err)
 		c.JSON(http.StatusOK, gin.H{"status": "can't read body."})
 		return
 	}
 
 	if len(config.Security.AllowIps) > 0 {
 		if !isIpAllowed(c.Request, config.Security.AllowIps) {
+			log.Println("ERROR: Server dis-allow this IP Addr.")
 			c.JSON(http.StatusForbidden, gin.H{"status": "invalid ip addr."})
 			return
 		}
 	}
 
 	if !checkValid(c.Request.Header, body) {
+		log.Println("ERROR: Invalid request.")
 		c.JSON(http.StatusBadRequest, gin.H{"status": "invalid request."})
 		return
 	}
@@ -151,12 +157,14 @@ func PostRelease(c *gin.Context) {
 	err = json.Unmarshal(body, &release)
 	if err != nil {
 		fmt.Errorf("Can not decode data: %v\n", err)
+		log.Println("ERROR: Unmarshal JSON.")
 		c.JSON(http.StatusBadRequest, gin.H{"status": "can't decode data"})
 		return
 	}
 
 	if len(config.Security.AllowRepos) > 0 {
 		if !isRepoAllowed(release) {
+			log.Println("ERROR: Server dis-allow this Repo.")
 			c.JSON(http.StatusForbidden, gin.H{"status": "disallow release the software"})
 			return
 		}
@@ -167,7 +175,17 @@ func PostRelease(c *gin.Context) {
 }
 
 func main() {
-	gin.SetMode(gin.ReleaseMode)
+	if config.Web.Debug {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+	if len(config.Web.Log) > 0 {
+		gin.DisableConsoleColor()
+		f, _ := os.Create(config.Web.Log)
+		gin.DefaultWriter = io.MultiWriter(f)
+
+	}
 	router := gin.Default()
 	router.POST("/release", PostRelease)
 	router.StaticFS("/draft/", http.Dir(config.Path.Draft))
