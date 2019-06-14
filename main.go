@@ -6,9 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"path"
 	"strconv"
 	"strings"
@@ -109,7 +111,7 @@ func NonceIsNew(nonce string) bool {
 func checkValid(header http.Header, body []byte) bool {
 	nonce := header.Get("X-Build-Nonce")
 	if !NonceIsNew(nonce) {
-		log.Println("ERROR: Nonce %s is old." % nonce)
+		log.Println("ERROR: Nonce %s is old.", nonce)
 		return false
 	}
 
