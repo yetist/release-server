@@ -1,3 +1,7 @@
+### release-server 0.1.2
+
+  * Use nonce for replay attacks
+
 ### release-server 0.1.1
 
   * test release

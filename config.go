@@ -88,7 +88,7 @@ receivers = ["abc@example.com"]
 var config Config
 
 func init() {
-	LoadConfig("release-server", "0.1.1", "release-server.toml")
+	LoadConfig("release-server", "0.1.2", "release-server.toml")
 	if config.Security.ApiSecret == "" {
 		config.Security.ApiSecret = os.Getenv("API_SECRET")
 	}
