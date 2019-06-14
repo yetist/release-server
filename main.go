@@ -167,7 +167,7 @@ func PostRelease(c *gin.Context) {
 }
 
 func main() {
-	//gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	router.POST("/release", PostRelease)
 	router.StaticFS("/draft/", http.Dir(config.Path.Draft))
