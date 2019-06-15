@@ -1,4 +1,3 @@
-#
 [web]
 #http server port
 debug = true
@@ -21,26 +20,19 @@ source = "/tmp/sources"
 
 [security]
 # secret key
-api_secret = "it's a secret string"
+# You need to set a hidden variable named API_SECRET on the travis ci and set the same value.
+api_secret = "abcdefghijklmnopqrstuvwxyz"
 
 # allow repos
+# only github is supported, the format is: "organization/repo", "*" allows any repository.
 allow_repos = [
 "mate-desktop/marco",
 "*",
 ]
 
 # allow ips
+# ip address of travis ci: https://docs.travis-ci.com/user/ip-addresses/
 allow_ips = [
 "127.0.0.1",
 "::1",
 ]
-
-# mail server
-[mail]
-smtp_host = ""
-smtp_port = 587
-username = ""
-password = ""
-sender_nick = "Notify"
-sender = "nobody@example.com"
-receivers = ["abc@example.com"]
