@@ -1,3 +1,7 @@
+### release-server 0.1.3
+
+  * support debug and log
+
 ### release-server 0.1.2
 
   * Use nonce for replay attacks
