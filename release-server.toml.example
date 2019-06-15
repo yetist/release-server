@@ -1,8 +1,10 @@
 #
 [web]
 #http server port
+debug = true
 host = "localhost"
 port = 9090
+log = "/tmp/logs"
 
 [path]
 # path to save release version tarballs.

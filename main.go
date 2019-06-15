@@ -40,7 +40,7 @@ type Security struct {
 	Nonce string `gorm:"type:varchar(100);unique"`
 }
 
-func DownloadTarballs(release Release) {
+func DownloadTarballs(release Release) (err error) {
 	var pathPrefix string
 	var overwrite, updateSource bool
 	var sourceDir string
@@ -64,8 +64,8 @@ func DownloadTarballs(release Release) {
 
 	for _, file := range release.Files {
 		filepath := path.Join(pathPrefix, file.Name)
-		if err := DownloadFile(file.Url, filepath, overwrite, file.Size); err != nil {
-			fmt.Printf("Download \"%s\" Error: %s\n", file.Url, err)
+		if err = DownloadFile(file.Url, filepath, overwrite, file.Size); err != nil {
+			log.Printf("Download \"%s\" Error: %s\n", file.Url, err)
 		}
 		if updateSource {
 			dstpath := path.Join(sourceDir, file.Name)
@@ -111,12 +111,12 @@ func NonceIsNew(nonce string) bool {
 func checkValid(header http.Header, body []byte) bool {
 	nonce := header.Get("X-Build-Nonce")
 	if !NonceIsNew(nonce) {
-		log.Println("ERROR: Nonce %s is old.", nonce)
+		log.Printf("ERROR: Nonce %s is old.\n", nonce)
 		return false
 	}
 
 	if config.Security.ApiSecret == "" {
-		log.Println("Server ignore Client's API_SECRET")
+		log.Printf("Server ignore Client's API_SECRET\n")
 		return true
 	}
 
@@ -128,7 +128,7 @@ func checkValid(header http.Header, body []byte) bool {
 	if s1 == s2 {
 		return true
 	} else {
-		log.Println("ERROR: Signature: Need %s, but get %s.", s2, s1)
+		log.Printf("ERROR: Signature: Need %s, but get %s.\n", s2, s1)
 		return false
 	}
 }
@@ -136,21 +136,21 @@ func checkValid(header http.Header, body []byte) bool {
 func PostRelease(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		log.Println("ERROR: reading body: %v", err)
+		log.Printf("ERROR: reading body: %v\n", err)
 		c.JSON(http.StatusOK, gin.H{"status": "can't read body."})
 		return
 	}
 
 	if len(config.Security.AllowIps) > 0 {
 		if !isIpAllowed(c.Request, config.Security.AllowIps) {
-			log.Println("ERROR: Server dis-allow this IP Addr.")
+			log.Printf("ERROR: Server dis-allow this IP Addr.\n")
 			c.JSON(http.StatusForbidden, gin.H{"status": "invalid ip addr."})
 			return
 		}
 	}
 
 	if !checkValid(c.Request.Header, body) {
-		log.Println("ERROR: Invalid request.")
+		log.Printf("ERROR: Invalid request.\n")
 		c.JSON(http.StatusBadRequest, gin.H{"status": "invalid request."})
 		return
 	}
@@ -158,21 +158,25 @@ func PostRelease(c *gin.Context) {
 	var release Release
 	err = json.Unmarshal(body, &release)
 	if err != nil {
-		fmt.Errorf("Can not decode data: %v\n", err)
-		log.Println("ERROR: Unmarshal JSON.")
+		log.Printf("Can not decode data: %v\n", err)
 		c.JSON(http.StatusBadRequest, gin.H{"status": "can't decode data"})
 		return
 	}
 
 	if len(config.Security.AllowRepos) > 0 {
 		if !isRepoAllowed(release) {
-			log.Println("ERROR: Server dis-allow this Repo.")
+			log.Printf("ERROR: Server dis-allow this Repo.\n")
 			c.JSON(http.StatusForbidden, gin.H{"status": "disallow release the software"})
 			return
 		}
 	}
 
-	DownloadTarballs(release)
+	err = DownloadTarballs(release)
+	if err != nil {
+		log.Printf("Can not download tarballs: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"status": "can't download tarballs."})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"status": "release success"})
 }
 
