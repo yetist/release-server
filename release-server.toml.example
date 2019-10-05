@@ -18,6 +18,9 @@ draft = "/tmp/draft"
 # path to save source tarballs
 source = "/tmp/sources"
 
+# create symlink to other directory under source directory, default is false.
+# symlink_in_source = true
+
 [security]
 # secret key
 # You need to set a hidden variable named API_SECRET on the travis ci and set the same value.

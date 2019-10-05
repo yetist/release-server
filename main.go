@@ -69,7 +69,11 @@ func DownloadTarballs(release Release) (err error) {
 		}
 		if updateSource {
 			dstpath := path.Join(sourceDir, file.Name)
-			CopyFile(filepath, dstpath)
+			if config.Path.SourceSymlink {
+				os.Symlink(filepath, dstpath)
+			} else {
+				CopyFile(filepath, dstpath)
+			}
 		}
 	}
 
@@ -84,7 +88,11 @@ func DownloadTarballs(release Release) (err error) {
 	}
 	if updateSource {
 		dstpath := path.Join(sourceDir, newsfile)
-		CopyFile(newspath, dstpath)
+		if config.Path.SourceSymlink {
+			os.Symlink(newspath, dstpath)
+		} else {
+			CopyFile(newspath, dstpath)
+		}
 	}
 	return
 }

@@ -19,10 +19,11 @@ type Config struct {
 		Log   string `toml:"log"`
 	}
 	Path struct {
-		Release    string `toml:"release"`
-		PreRelease string `toml:"pre-release"`
-		Draft      string `toml:"draft"`
-		Source     string `toml:"source"`
+		Release       string `toml:"release"`
+		PreRelease    string `toml:"pre-release"`
+		Draft         string `toml:"draft"`
+		Source        string `toml:"source"`
+		SourceSymlink bool   `toml:"symlink_in_source"`
 	}
 	Security struct {
 		ApiSecret  string   `toml:"api_secret"`
@@ -61,6 +62,9 @@ draft = "/tmp/draft"
 
 # path to save the release version tarballs as source.
 source = "/tmp/sources"
+
+# create symlink to other directory under source directory, default is false.
+# symlink_in_source = true
 
 [security]
 # secret key
