@@ -68,15 +68,18 @@ source = "/tmp/sources"
 
 [security]
 # secret key
+# You need to set a hidden variable named API_SECRET on the travis ci and set the same value.
 api_secret = "it is a secret string"
 
 # allow repos
+# only github is supported, the format is: "organization/repo", "*" allows any repository.
 allow_repos = [
 "mate-desktop/marco",
 "*",
 ]
 
 # allow ips
+# ip address of travis ci: https://docs.travis-ci.com/user/ip-addresses/
 allow_ips = [
 "127.0.0.1",
 "::1",
