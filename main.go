@@ -105,6 +105,10 @@ func DownloadTarballs(release Release) (err error) {
 		} else {
 			CopyFile(newspath, dstpath)
 		}
+
+		if config.Path.Rss != "" {
+			updateFeed(release)
+		}
 	}
 	return
 }

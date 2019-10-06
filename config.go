@@ -24,6 +24,7 @@ type Config struct {
 		Draft         string `toml:"draft"`
 		Source        string `toml:"source"`
 		SourceSymlink bool   `toml:"symlink_in_source"`
+		Rss           string `toml:"rss"`
 	}
 	Security struct {
 		ApiSecret  string   `toml:"api_secret"`
@@ -65,6 +66,9 @@ source = "/tmp/sources"
 
 # create symlink to other directory under source directory, default is false.
 # symlink_in_source = true
+
+# Rss feed for relase.
+# rss = "/tmp/rss.xml"
 
 [security]
 # secret key
