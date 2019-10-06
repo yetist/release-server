@@ -54,14 +54,14 @@ def notify(url):
             'published_at' : datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat(),
             "files": [
                 {
-                    "name": "mate-common-1.20.0.tar.xz",
-                    "size": 73140,
-                    "url": "https://github.com/yetist/mate-common/releases/download/v1.13.0/mate-common-1.20.0.tar.xz"
+                    "name": "mate-common-1.13.0.tar.xz",
+                    "size": 69208,
+                    "url": "https://github.com/yetist/mate-common/releases/download/v1.13.0/mate-common-1.13.0.tar.xz"
                     },
                 {
-                    "name": "mate-common-1.20.0.tar.xz.sha256sum",
+                    "name": "mate-common-1.13.0.tar.xz.sha256sum",
                     "size": 92,
-                    "url": "https://github.com/yetist/mate-common/releases/download/v1.13.0/mate-common-1.20.0.tar.xz.sha256sum"
+                    "url": "https://github.com/yetist/mate-common/releases/download/v1.13.0/mate-common-1.13.0.tar.xz.sha256sum"
                     }
                 ]
             }
