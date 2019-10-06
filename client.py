@@ -76,7 +76,7 @@ def notify(url):
 
 if __name__=="__main__":
     url='http://localhost:9090/release'
-    url='https://post.zhcn.cc/release'
+    #url='https://post.zhcn.cc/release'
     notify(url)
     #payload=data
     #send_post_to_url(url, payload)
