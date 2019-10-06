@@ -48,13 +48,25 @@ func DownloadTarballs(release Release) (err error) {
 	version_list := strings.Split(release.Version, ".")
 	api_version := strings.Join(version_list[:2], ".")
 	if release.Draft {
-		pathPrefix = path.Join(config.Path.Draft, api_version)
+		if release.Name == "mate-themes" {
+			pathPrefix = path.Join(config.Path.Draft, "themes", api_version)
+		} else {
+			pathPrefix = path.Join(config.Path.Draft, api_version)
+		}
 		overwrite = true
 	} else if release.PreRelease {
-		pathPrefix = path.Join(config.Path.PreRelease, api_version)
+		if release.Name == "mate-themes" {
+			pathPrefix = path.Join(config.Path.PreRelease, "themes", api_version)
+		} else {
+			pathPrefix = path.Join(config.Path.PreRelease, api_version)
+		}
 		overwrite = true
 	} else {
-		pathPrefix = path.Join(config.Path.Release, api_version)
+		if release.Name == "mate-themes" {
+			pathPrefix = path.Join(config.Path.Release, "themes", api_version)
+		} else {
+			pathPrefix = path.Join(config.Path.Release, api_version)
+		}
 		overwrite = false
 		if config.Path.Source != "" {
 			updateSource = true
