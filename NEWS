@@ -1,5 +1,12 @@
+### release-server 0.1.5
+
+ * Special handling of mate-themes
+ * create dest directory before create symlink
+ * add comment for example config
+ * new config "symlink_in_source" to create symlink under source directory
+
 ### release-server 0.1.4
-#
+
  * remove a space from url to fix allow_repos
  * update to go 1.13
  * update example file for config
