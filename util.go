@@ -111,6 +111,13 @@ func WriteFile(path string, data []byte) error {
 	return ioutil.WriteFile(path, data, 0644)
 }
 
+func LinkFile(srcName, dstName string) error {
+	dirname := path.Dir(dstName)
+	os.MkdirAll(dirname, 0755)
+
+	return os.Symlink(srcName, dstName)
+}
+
 func CopyFile(srcName, dstName string) (written int64, err error) {
 	dirname := path.Dir(dstName)
 	os.MkdirAll(dirname, 0755)
