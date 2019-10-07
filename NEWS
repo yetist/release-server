@@ -1,3 +1,10 @@
+### release-server 0.1.6
+ * update go.mod
+ * generate rss.xml
+ * sort rss items
+ * update test client.py
+ * new code to update rss.xml
+
 ### release-server 0.1.5
 
  * Special handling of mate-themes
