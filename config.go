@@ -91,8 +91,7 @@ path = "/tmp/rss.xml"
 count = 30
 
 # Rss item download parent url
-url_prefix = "https://pub.mate-desktop.org/releases/{{.ApiVersion}}/"
-#url_prefix = "https://pub.mate-desktop.org/sources/{{.Name}}/{{.ApiVersion}}/"
+url_prefix = "https://pub.mate-desktop.org/sources/{{.Name}}/{{.ApiVersion}}"
 
 [security]
 # secret key
