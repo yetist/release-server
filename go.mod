@@ -2,6 +2,7 @@ module release-server
 
 require (
 	github.com/BurntSushi/toml v0.3.1
+	github.com/a8m/mark v0.1.0
 	github.com/gin-contrib/sse v0.0.0-20190226023149-996076df5b33 // indirect
 	github.com/gin-gonic/gin v1.3.0
 	github.com/golang/protobuf v1.3.0 // indirect
