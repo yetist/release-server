@@ -32,6 +32,7 @@ type Release struct {
 	PreRelease  bool      `json:"prerelease"`
 	CreatedAt   time.Time `json:"created_at"`
 	PublishedAt time.Time `json:"published_at"`
+	ApiVersion  string    `json:"-"`
 	Files       []File    `json:"files"`
 }
 
@@ -45,32 +46,30 @@ func DownloadTarballs(release Release) (err error) {
 	var overwrite, updateSource bool
 	var sourceDir string
 
-	version_list := strings.Split(release.Version, ".")
-	api_version := strings.Join(version_list[:2], ".")
 	if release.Draft {
 		if release.Name == "mate-themes" {
-			pathPrefix = path.Join(config.Path.Draft, "themes", api_version)
+			pathPrefix = path.Join(config.Path.Draft, "themes", release.ApiVersion)
 		} else {
-			pathPrefix = path.Join(config.Path.Draft, api_version)
+			pathPrefix = path.Join(config.Path.Draft, release.ApiVersion)
 		}
 		overwrite = true
 	} else if release.PreRelease {
 		if release.Name == "mate-themes" {
-			pathPrefix = path.Join(config.Path.PreRelease, "themes", api_version)
+			pathPrefix = path.Join(config.Path.PreRelease, "themes", release.ApiVersion)
 		} else {
-			pathPrefix = path.Join(config.Path.PreRelease, api_version)
+			pathPrefix = path.Join(config.Path.PreRelease, release.ApiVersion)
 		}
 		overwrite = true
 	} else {
 		if release.Name == "mate-themes" {
-			pathPrefix = path.Join(config.Path.Release, "themes", api_version)
+			pathPrefix = path.Join(config.Path.Release, "themes", release.ApiVersion)
 		} else {
-			pathPrefix = path.Join(config.Path.Release, api_version)
+			pathPrefix = path.Join(config.Path.Release, release.ApiVersion)
 		}
 		overwrite = false
 		if config.Path.Source != "" {
 			updateSource = true
-			sourceDir = path.Join(config.Path.Source, release.Name, api_version)
+			sourceDir = path.Join(config.Path.Source, release.Name, release.ApiVersion)
 		}
 	}
 
@@ -106,7 +105,7 @@ func DownloadTarballs(release Release) (err error) {
 			CopyFile(newspath, dstpath)
 		}
 
-		if config.Path.Rss != "" {
+		if config.Rss.Path != "" {
 			updateFeed(release)
 		}
 	}
@@ -186,6 +185,9 @@ func PostRelease(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "can't decode data"})
 		return
 	}
+
+	version_list := strings.Split(release.Version, ".")
+	release.ApiVersion = strings.Join(version_list[:2], ".")
 
 	if len(config.Security.AllowRepos) > 0 {
 		if !isRepoAllowed(release) {

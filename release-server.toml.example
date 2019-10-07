@@ -21,6 +21,27 @@ source = "/tmp/sources"
 # create symlink to other directory under source directory, default is false.
 # symlink_in_source = true
 
+[rss]
+# Rss Channel title
+title = "MATE releases"
+
+# Rss Channel Description
+description = "RSS feed for MATE releases"
+
+# Rss Channel Link URL
+link = "https://pub.mate-desktop.org/rss.xml"
+
+# Rss file path, if path is not "", update the rss.xml file
+path = "/tmp/rss.xml"
+
+# Rss item counts
+count = 30
+
+# Rss item download parent url
+url_prefix = "https://pub.mate-desktop.org/releases/{{.ApiVersion}}/"
+#url_prefix = "https://pub.mate-desktop.org/sources/{{.Name}}/{{.ApiVersion}}/"
+
+
 [security]
 # secret key
 # You need to set a hidden variable named API_SECRET on the travis ci and set the same value.

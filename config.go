@@ -24,7 +24,14 @@ type Config struct {
 		Draft         string `toml:"draft"`
 		Source        string `toml:"source"`
 		SourceSymlink bool   `toml:"symlink_in_source"`
-		Rss           string `toml:"rss"`
+	}
+	Rss struct {
+		Title       string `toml:"title"`
+		Description string `toml:"description"`
+		Link        string `toml:"link"`
+		Path        string `toml:"path"`
+		Count       int    `toml:"count"`
+		UrlPrefix   string `toml:"url_prefix"`
 	}
 	Security struct {
 		ApiSecret  string   `toml:"api_secret"`
@@ -67,8 +74,25 @@ source = "/tmp/sources"
 # create symlink to other directory under source directory, default is false.
 # symlink_in_source = true
 
-# Rss feed for relase.
-# rss = "/tmp/rss.xml"
+[rss]
+# Rss Channel title
+title = "MATE releases"
+
+# Rss Channel Description
+description = "RSS feed for MATE releases"
+
+# Rss Channel Link URL
+link = "https://pub.mate-desktop.org/rss.xml"
+
+# Rss file path, if path is not "", update the rss.xml file
+path = "/tmp/rss.xml"
+
+# Rss item counts
+count = 30
+
+# Rss item download parent url
+url_prefix = "https://pub.mate-desktop.org/releases/{{.ApiVersion}}/"
+#url_prefix = "https://pub.mate-desktop.org/sources/{{.Name}}/{{.ApiVersion}}/"
 
 [security]
 # secret key

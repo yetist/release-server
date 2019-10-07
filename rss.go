@@ -1,11 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
+	"github.com/a8m/mark"
 	"io/ioutil"
+	"log"
 	"os"
 	"sort"
+	"strings"
+	"text/template"
 	"time"
 )
 
@@ -48,32 +53,16 @@ func (p Items) Less(i, j int) bool {
 	if err != nil {
 		return false
 	}
-	//return a.Before(b)
+	// Here use After, not Before, so we didn't need to reverse them.
 	return a.After(b)
 }
 func (p Items) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
 
-func generateXML() {
-	var items []item
-	now := time.Now()
-	v := &RssFeed{Version: "2.0"}
-	c := channel{"MATE releases", "RSS feed for MATE releases", "http://pub.mate-desktop.org/rss.xml", now.Format(time.RFC1123Z), now.Format(time.RFC1123Z), items}
-	c.Items = append(c.Items, item{"mate-common", "released by MATE Desktop Team", "http://abc.com", "mate-common", now.Format(time.RFC1123Z)})
-	c.Items = append(c.Items, item{"mate-common2", "released by MATE Desktop Team", "http://abc.com", "mate-common2", now.Format(time.RFC1123Z)})
-	v.Channel = c
-	output, err := xml.MarshalIndent(v, " ", "  ")
-	if err != nil {
-		fmt.Println("error:%v\n", err)
-	}
-	os.Stdout.Write([]byte(xml.Header))
-	os.Stdout.Write(output)
-}
-
-func readCurrentFeed() (feed RssFeed, err error) {
+func loadCurrentFeed() (feed RssFeed, err error) {
 	var file *os.File
 	var data []byte
 
-	file, err = os.Open(config.Path.Rss)
+	file, err = os.Open(config.Rss.Path)
 	if err != nil {
 		return
 	}
@@ -85,40 +74,92 @@ func readCurrentFeed() (feed RssFeed, err error) {
 	}
 	err = xml.Unmarshal(data, &feed)
 	if err != nil {
-		fmt.Println("error:%v", err)
+		log.Printf("error:%v", err)
 		return
 	}
 	return
 }
 
+func getUrlPrefix(release Release) string {
+	memOut := new(bytes.Buffer)
+
+	tmpl, err := template.New("urlPrefix").Parse(config.Rss.UrlPrefix)
+	if err != nil {
+		log.Printf("parsing: %s", err)
+		return ""
+	}
+
+	err = tmpl.Execute(memOut, release)
+	if err != nil {
+		log.Printf("parsing: %s", err)
+		return ""
+	}
+	return memOut.String()
+}
+
+func genNewItem(release Release) (new item) {
+	new.Title = release.Name + " " + release.Version
+
+	url := getUrlPrefix(release)
+
+	news := strings.Split(release.News, "\n")
+	news = append(news, "---")
+	news = append(news, fmt.Sprintf("[News](%s/%s-%s.news)", url, release.Name, release.Version))
+	news = append(news, "\nDownload")
+	for _, file := range release.Files {
+		news = append(news, fmt.Sprintf("- [%s](%s/%s)", file.Name, url, file.Name))
+	}
+
+	for _, file := range release.Files {
+		news = append(news, fmt.Sprintf("- [%s](%s) (From Github)", file.Name, file.Url))
+	}
+
+	new.Description = mark.Render(strings.Join(news, "\n") + "\n")
+	new.Link = fmt.Sprintf("%s/%s-%s.tar.xz", url, release.Name, release.Version)
+	new.PubDate = release.PublishedAt.Format(time.RFC1123Z)
+	new.Guid = release.Name + "-" + release.Version
+	return
+}
+
 func updateFeed(release Release) {
-	feed, err := readCurrentFeed()
+	feed, err := loadCurrentFeed()
 	if err != nil {
 		return
 	}
-	//fmt.Printf("%#v\n", feed)
 
-	var newItem item
-	newItem.Title = release.Name + " " + release.Version
-	newItem.Description = release.News
-	newItem.Link = "https://"
-	newItem.PubDate = release.PublishedAt.Format(time.RFC1123Z)
+	newItem := genNewItem(release)
 
 	feed.Channel.Items = append(feed.Channel.Items, newItem)
-	feed.Channel.PubDate = newItem.PubDate
-
-	for _, item := range feed.Channel.Items {
-		fmt.Printf("%#v\n", item.Title)
-	}
 
 	sort.Sort(feed.Channel.Items)
-	feed.Channel.Items = feed.Channel.Items[:3]
+	if len(feed.Channel.Items) > config.Rss.Count {
+		feed.Channel.Items = feed.Channel.Items[:config.Rss.Count]
+	}
+
+	feed.Channel.PubDate = newItem.PubDate
 	feed.Channel.LastBuildDate = time.Now().Format(time.RFC1123Z)
+	if config.Rss.Title != "" {
+		feed.Channel.Title = config.Rss.Title
+	}
+	if config.Rss.Description != "" {
+		feed.Channel.Description = config.Rss.Description
+	}
+	if config.Rss.Link != "" {
+		feed.Channel.Link = config.Rss.Link
+	}
 
 	output, err := xml.MarshalIndent(feed, " ", "  ")
 	if err != nil {
-		fmt.Println("error:%v\n", err)
+		log.Printf("error:%v\n", err)
 	}
 	os.Stdout.Write([]byte(xml.Header))
 	os.Stdout.Write(output)
+
+	out, err := os.Create(config.Rss.Path)
+	if err != nil {
+		log.Printf("error:%v\n", err)
+	}
+	out.Write([]byte(xml.Header))
+	out.Write(output)
+	out.Close()
 }
