@@ -152,8 +152,6 @@ func updateFeed(release Release) {
 	if err != nil {
 		log.Printf("error:%v\n", err)
 	}
-	os.Stdout.Write([]byte(xml.Header))
-	os.Stdout.Write(output)
 
 	out, err := os.Create(config.Rss.Path)
 	if err != nil {
