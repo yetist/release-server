@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"log"
 	"os"
 	"os/exec"
 	"os/user"
@@ -126,7 +127,10 @@ receivers = ["abc@example.com"]
 var config Config
 
 func init() {
-	LoadConfig("release-server", "0.1.6", "release-server.toml")
+	err := LoadConfig("release-server", "0.1.6", "release-server.toml")
+	if err != nil {
+		log.Fatalf("Config error: %s\n", err)
+	}
 	if config.Security.ApiSecret == "" {
 		config.Security.ApiSecret = os.Getenv("API_SECRET")
 	}
